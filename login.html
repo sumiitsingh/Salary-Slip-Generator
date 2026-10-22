@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sign In | Payroll Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="login.js"></script>
+</head>
+<body class="login-page">
+  <main class="login-shell">
+    <section class="login-brand">
+      <div class="brand"><span class="brand-icon">▤</span><span>PAYROLL STUDIO</span></div>
+      <div class="brand-copy">
+        <p class="eyebrow light">Private payroll workspace</p>
+        <h1>Payroll,<br>with precision.</h1>
+        <p>A focused workspace for creating polished, accurate salary slips. All your payroll essentials, in one place.</p>
+      </div>
+      <div class="brand-foot">AUTHORIZED ACCESS ONLY</div>
+    </section>
+    <section class="login-form-panel">
+      <p class="eyebrow">Admin workspace</p>
+      <h2>Welcome back</h2>
+      <p class="muted login-intro">Sign in to continue to your salary slip maker.</p>
+      <form id="loginForm">
+        <div class="field">
+          <label for="email">EMAIL ADDRESS</label>
+          <input id="email" type="email" autocomplete="username" placeholder="you@company.com" required>
+        </div>
+        <div class="field">
+          <label for="password">PASSWORD</label>
+          <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+        </div>
+        <button id="submitBtn" class="btn primary full-width" type="submit">Sign in securely →</button>
+        <div id="message" class="message" role="alert"></div>
+      </form>
+      <div class="security-note"><span>🔒</span><span>Only your authorized admin account can access this workspace. Access is verified using Supabase authentication.</span></div>
+    </section>
+  </main>
+</body>
+</html>

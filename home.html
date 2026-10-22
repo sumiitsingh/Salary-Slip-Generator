@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Payroll Studio | Salary Slip Maker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="home.js"></script>
+</head>
+<body class="app-page">
+<header class="topbar">
+  <div class="brand"><span class="brand-icon">▤</span><span>PAYROLL STUDIO</span></div>
+  <div class="topright"><span id="userEmail" class="user-pill">Admin workspace</span><button id="logoutBtn" class="btn">Sign out ↗</button></div>
+</header>
+<main class="app">
+  <div class="pagehead">
+    <div><div class="eyebrow">Payroll workspace</div><h1>Salary slip maker</h1><div class="muted">Create, customise, save and print professional salary slips.</div></div>
+    <div class="head-actions"><button id="newBtn" class="btn">＋ New slip</button><button id="saveBtn" class="btn primary">Save salary slip</button></div>
+  </div>
+  <div class="stats">
+    <div class="stat"><div class="stat-label">CURRENT NET PAYABLE</div><div id="statNet" class="stat-value">₹0.00</div><div class="stat-note">Calculated from this slip</div></div>
+    <div class="stat"><div class="stat-label">PAID DAYS</div><div id="statDays" class="stat-value">30 / 30</div><div class="stat-note">Edit attendance anytime</div></div>
+    <div class="stat"><div class="stat-label">SAVED SLIPS</div><div id="statSaved" class="stat-value">0</div><div class="stat-note">Stored in Supabase</div></div>
+  </div>
+  <div class="layout">
+    <section class="editor-column">
+      <div class="panel">
+        <div class="panel-head"><h2><span class="section-number">01</span>Company details</h2></div>
+        <div class="panel-body">
+          <div class="formgrid">
+            <div class="field full"><label for="companyName">COMPANY / LEGAL NAME *</label><input id="companyName" placeholder="Company name"></div>
+            <div class="field full"><label for="companyAddress">REGISTERED ADDRESS</label><textarea id="companyAddress" rows="2" placeholder="Full company address"></textarea></div>
+            <div class="field"><label for="regNo">REGISTRATION / REG. NO.</label><input id="regNo" placeholder="Optional"></div>
+            <div class="field"><label for="gstin">GSTIN</label><input id="gstin" placeholder="Optional"></div>
+            <div class="field"><label for="tan">TAN</label><input id="tan" placeholder="Optional"></div>
+            <div class="field"><label for="salaryMonth">PAYROLL MONTH *</label><input id="salaryMonth" type="month" required></div>
+            <div class="field full">
+              <label for="logoFile">COMPANY LOGO (OPTIONAL)</label>
+              <div class="logo-upload">
+                <div class="logo-preview" id="logoPreview">LOGO</div>
+                <div class="logo-copy"><strong>Upload company logo</strong><span>PNG, JPG or WebP. Optional.</span><div class="inline-actions"><input id="logoFile" type="file" accept="image/png,image/jpeg,image/webp"><button type="button" id="removeLogo" class="btn small">Remove logo</button></div></div>
+              </div>
+              <div class="hint">Logo uploads to the Supabase storage bucket named <code>salary-logos</code>.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2><span class="section-number">02</span>Employee information</h2><button id="addFieldBtn" class="btn small">＋ Add field</button></div>
+        <div class="panel-body">
+          <div class="formgrid">
+            <div class="field"><label for="empNo">EMPLOYEE NO.</label><input id="empNo" placeholder="Employee code"></div>
+            <div class="field"><label for="empName">EMPLOYEE NAME *</label><input id="empName" placeholder="Full name"></div>
+            <div class="field"><label for="fatherName">FATHER / HUSBAND NAME</label><input id="fatherName" placeholder="Optional"></div>
+            <div class="field"><label for="designation">DESIGNATION</label><input id="designation" placeholder="Job title"></div>
+            <div class="field"><label for="department">DEPARTMENT</label><input id="department" placeholder="Department"></div>
+            <div class="field"><label for="joiningDate">JOINING DATE</label><input id="joiningDate" type="date"></div>
+            <div class="field"><label for="bankAccount">BANK A/C NO.</label><input id="bankAccount" placeholder="Bank account number"></div>
+            <div class="field"><label for="ifsc">IFSC CODE</label><input id="ifsc" placeholder="Bank IFSC"></div>
+            <div class="field"><label for="uan">UAN</label><input id="uan" placeholder="UAN number"></div>
+            <div class="field"><label for="pfNo">PF NO.</label><input id="pfNo" placeholder="PF number"></div>
+            <div class="field"><label for="esiNo">ESI NO.</label><input id="esiNo" placeholder="ESI number"></div>
+            <div class="field"><label for="location">WORK LOCATION</label><input id="location" placeholder="Optional"></div>
+          </div>
+          <div id="customFields" class="custom-fields"></div>
+          <div class="hint">Add or remove custom headings such as PAN, grade, shift or any other employee detail.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2><span class="section-number">03</span>Attendance & salary basis</h2></div>
+        <div class="panel-body">
+          <div class="formgrid three">
+            <div class="field"><label for="basisDays">BASIS DAYS</label><input id="basisDays" type="number" min="1" max="366" step="0.01" value="30"></div>
+            <div class="field"><label for="paidDays">PAID DAYS</label><input id="paidDays" type="number" min="0" max="366" step="0.01" value="30"></div>
+            <div class="field"><label for="lopDays">LOP DAYS</label><input id="lopDays" type="number" min="0" max="366" step="0.01" value="0"></div>
+          </div>
+          <div class="help-box">Default earnings are prorated by paid days ÷ basis days. You can manually override any earned amount. Deductions remain editable and are not automatically prorated.</div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2><span class="section-number">04</span>Earnings</h2><button id="addEarning" class="btn small">＋ Add earning</button></div>
+        <div class="panel-body">
+          <div class="component-head earning-grid"><span>Particulars</span><span>Fixed ₹</span><span>Earned ₹</span><span>Arrear ₹</span><span></span></div>
+          <div id="earningsRows"></div>
+          <div class="total-line"><span>Total earnings</span><strong id="totalEarnings">₹0.00</strong></div>
+          <label class="toggle-line"><input id="autoProrate" type="checkbox" checked> Automatically recalculate non-overridden earnings when paid days change</label>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2><span class="section-number">05</span>Deductions</h2><button id="addDeduction" class="btn small">＋ Add deduction</button></div>
+        <div class="panel-body">
+          <div class="component-head deduction-grid"><span>Particulars</span><span>Amount ₹</span><span>Arrear ₹</span><span></span></div>
+          <div id="deductionsRows"></div>
+          <div class="total-line"><span>Total deductions</span><strong id="totalDeductions">₹0.00</strong></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2><span class="section-number">06</span>Additional options</h2></div>
+        <div class="panel-body">
+          <div class="formgrid"><div class="field"><label for="notes">NOTES</label><input id="notes" placeholder="Optional note"></div><div class="field"><label for="rounding">NET PAYABLE ROUNDING</label><select id="rounding"><option value="2">2 decimal places</option><option value="0">Whole rupees</option></select></div></div>
+          <div class="help-box">All amounts are editable. Verify statutory PF/ESI eligibility and tax calculations before issuing a slip.</div>
+          <div class="inline-actions space-top"><button id="saveBottom" class="btn primary">Save salary slip</button><button id="printBottom" class="btn">Print / Save PDF</button></div>
+          <div id="status" class="status" role="status"></div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h2>Saved salary slips</h2><button id="refreshSaved" class="btn small">↻ Refresh</button></div>
+        <div class="saved-search"><input id="searchSaved" placeholder="Search employee, company or month..."></div>
+        <div id="savedList" class="saved-list"><div class="empty">Loading saved slips…</div></div>
+      </div>
+    </section>
+    <section class="panel preview-panel">
+      <div class="panel-head preview-head"><div><h2>Live salary slip preview</h2><p>Updates as you edit the form</p></div><button id="printBtn" class="btn primary small">Print / PDF</button></div>
+      <div class="paper-wrap">
+        <article class="paper" id="salaryPaper">
+          <div class="paper-company"><div class="paper-logo" id="paperLogo"></div><div class="paper-company-text"><h2 id="pCompany">Company Name</h2><p id="pAddress"></p><p id="pCompanyTax"></p></div><div class="paper-reg" id="pReg"></div></div>
+          <div class="paper-title">SALARY / WAGE SLIP</div>
+          <div class="paper-meta"><span id="pMonth">Salary Slip For —</span><span id="pPaidDays">Paid Days: 30</span></div>
+          <div class="info-table" id="pEmployee"></div>
+          <div class="salary-tables">
+            <table class="salary-table"><thead><tr><th>Particulars</th><th>Fixed ₹</th><th>Earning ₹</th><th>Arrear ₹</th><th>Total ₹</th></tr></thead><tbody id="pEarnings"></tbody></table>
+            <table class="salary-table"><thead><tr><th>Particulars</th><th>Deduction ₹</th><th>Arrear ₹</th><th>Total ₹</th></tr></thead><tbody id="pDeductions"></tbody></table>
+          </div>
+          <div class="net-box"><div class="net-main"><span>NET PAYABLE AMOUNT</span><strong id="pNet">₹0.00</strong></div><div class="words" id="pWords">RUPEES ZERO ONLY</div></div>
+          <div id="pNotes" class="paper-notes"></div>
+          <div class="paper-foot">Computer-generated salary slip.</div>
+        </article>
+      </div>
+    </section>
+  </div>
+</main>
+</body>
+</html>
